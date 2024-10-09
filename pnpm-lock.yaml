@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@openai/realtime-api-beta':
-        specifier: github:openai/openai-realtime-api-beta
+        specifier: https://github.com/openai/openai-realtime-api-beta
         version: git+https://git@github.com:openai/openai-realtime-api-beta.git#339e9553a757ef1cf8c767272fc750c1e62effbb
       '@testing-library/jest-dom':
         specifier: ^5.17.0
@@ -931,6 +931,7 @@ packages:
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
