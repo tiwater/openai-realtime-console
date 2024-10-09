@@ -56,11 +56,13 @@ interface RealtimeEvent {
 
 const VoiceDropdown: React.FC<{
   value: string;
-  onChange: (value: "alloy" | "shimmer" | "echo") => void;
-}> = ({ value, onChange }) => (
-  <select 
-    value={value} 
-    onChange={(e) => onChange(e.target.value as "alloy" | "shimmer" | "echo")}
+  onChange: (value: 'alloy' | 'shimmer' | 'echo') => void;
+  disabled: boolean;
+}> = ({ value, onChange, disabled }) => (
+  <select
+    value={value}
+    onChange={(e) => onChange(e.target.value as 'alloy' | 'shimmer' | 'echo')}
+    disabled={disabled}
   >
     <option value="alloy">Alloy</option>
     <option value="shimmer">Shimmer</option>
@@ -138,7 +140,9 @@ export function ConsolePage() {
     lng: -122.418137,
   });
   const [marker, setMarker] = useState<Coordinates | null>(null);
-  const [currentVoice, setCurrentVoice] = useState<"alloy" | "shimmer" | "echo">("alloy");
+  const [currentVoice, setCurrentVoice] = useState<
+    'alloy' | 'shimmer' | 'echo'
+  >('alloy');
 
   /**
    * Utility for formatting the timing of logs
@@ -196,7 +200,7 @@ export function ConsolePage() {
 
     // Connect to realtime API
     await client.connect();
-    client.updateSession({ voice: currentVoice });  // Add this line
+    client.updateSession({ voice: currentVoice });
     client.sendUserMessageContent([
       {
         type: `input_text`,
@@ -204,10 +208,12 @@ export function ConsolePage() {
       },
     ]);
 
+    setIsConnected(true);
+
     if (client.getTurnDetectionType() === 'server_vad') {
       await wavRecorder.record((data) => client.appendInputAudio(data.mono));
     }
-  }, [currentVoice]);  // Add currentVoice to the dependency array
+  }, [currentVoice]);
 
   /**
    * Disconnect and reset conversation state
@@ -515,10 +521,12 @@ export function ConsolePage() {
     };
   }, []);
 
-  const handleVoiceChange = useCallback((newVoice: "alloy" | "shimmer" | "echo") => {
-    setCurrentVoice(newVoice);
-    clientRef.current.updateSession({ voice: newVoice });
-  }, []);
+  const handleVoiceChange = useCallback(
+    (newVoice: 'alloy' | 'shimmer' | 'echo') => {
+      setCurrentVoice(newVoice);
+    },
+    []
+  );
 
   /**
    * Render the application
@@ -689,7 +697,11 @@ export function ConsolePage() {
               values={['none', 'server_vad']}
               onChange={(_, value) => changeTurnEndType(value)}
             />
-            <VoiceDropdown value={currentVoice} onChange={handleVoiceChange} />
+            <VoiceDropdown
+              value={currentVoice}
+              onChange={handleVoiceChange}
+              disabled={isConnected}
+            />
             <div className="spacer" />
             {isConnected && canPushToTalk && (
               <Button
