@@ -54,6 +54,20 @@ interface RealtimeEvent {
   event: { [key: string]: any };
 }
 
+const VoiceDropdown: React.FC<{
+  value: string;
+  onChange: (value: "alloy" | "shimmer" | "echo") => void;
+}> = ({ value, onChange }) => (
+  <select 
+    value={value} 
+    onChange={(e) => onChange(e.target.value as "alloy" | "shimmer" | "echo")}
+  >
+    <option value="alloy">Alloy</option>
+    <option value="shimmer">Shimmer</option>
+    <option value="echo">Echo</option>
+  </select>
+);
+
 export function ConsolePage() {
   /**
    * Ask user for API Key
@@ -124,6 +138,7 @@ export function ConsolePage() {
     lng: -122.418137,
   });
   const [marker, setMarker] = useState<Coordinates | null>(null);
+  const [currentVoice, setCurrentVoice] = useState<"alloy" | "shimmer" | "echo">("alloy");
 
   /**
    * Utility for formatting the timing of logs
@@ -181,18 +196,18 @@ export function ConsolePage() {
 
     // Connect to realtime API
     await client.connect();
+    client.updateSession({ voice: currentVoice });  // Add this line
     client.sendUserMessageContent([
       {
         type: `input_text`,
         text: `Hello!`,
-        // text: `For testing purposes, I want you to list ten car brands. Number each item, e.g. "one (or whatever number you are one): the item name".`
       },
     ]);
 
     if (client.getTurnDetectionType() === 'server_vad') {
       await wavRecorder.record((data) => client.appendInputAudio(data.mono));
     }
-  }, []);
+  }, [currentVoice]);  // Add currentVoice to the dependency array
 
   /**
    * Disconnect and reset conversation state
@@ -500,6 +515,11 @@ export function ConsolePage() {
     };
   }, []);
 
+  const handleVoiceChange = useCallback((newVoice: "alloy" | "shimmer" | "echo") => {
+    setCurrentVoice(newVoice);
+    clientRef.current.updateSession({ voice: newVoice });
+  }, []);
+
   /**
    * Render the application
    */
@@ -669,6 +689,7 @@ export function ConsolePage() {
               values={['none', 'server_vad']}
               onChange={(_, value) => changeTurnEndType(value)}
             />
+            <VoiceDropdown value={currentVoice} onChange={handleVoiceChange} />
             <div className="spacer" />
             {isConnected && canPushToTalk && (
               <Button
