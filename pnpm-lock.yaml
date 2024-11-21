@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@openai/realtime-api-beta':
-        specifier: github:openai/openai-realtime-api-beta
-        version: git+https://git@github.com:openai/openai-realtime-api-beta.git#a5cb94824f625423858ebacb9f769226ca98945f
+        specifier: https://github.com/openai/openai-realtime-api-beta
+        version: https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/a5cb94824f625423858ebacb9f769226ca98945f
       '@testing-library/jest-dom':
         specifier: ^5.17.0
         version: 5.17.0
@@ -1063,8 +1063,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@openai/realtime-api-beta@git+https://git@github.com:openai/openai-realtime-api-beta.git#a5cb94824f625423858ebacb9f769226ca98945f':
-    resolution: {commit: a5cb94824f625423858ebacb9f769226ca98945f, repo: git@github.com:openai/openai-realtime-api-beta.git, type: git}
+  '@openai/realtime-api-beta@https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/a5cb94824f625423858ebacb9f769226ca98945f':
+    resolution: {tarball: https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/a5cb94824f625423858ebacb9f769226ca98945f}
     version: 0.0.0
 
   '@pkgjs/parseargs@0.11.0':
@@ -7032,7 +7032,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@openai/realtime-api-beta@git+https://git@github.com:openai/openai-realtime-api-beta.git#a5cb94824f625423858ebacb9f769226ca98945f':
+  '@openai/realtime-api-beta@https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/a5cb94824f625423858ebacb9f769226ca98945f':
     dependencies:
       ws: 8.18.0
     transitivePeerDependencies:
