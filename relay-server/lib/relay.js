@@ -34,12 +34,51 @@ export class RealtimeRelay {
     this.log(`Connecting with key "${this.apiKey.slice(0, 3)}..."`);
     const client = new RealtimeClient({ apiKey: this.apiKey });
 
+    // Set up error handling for all client events
+    const handleClientError = (error) => {
+      console.error('OpenAI client error:', error);
+      this.log(`OpenAI client error: ${error.message}`);
+      // Don't close the connection for data processing errors
+      // Only close for critical errors like connection failures
+      if (error.message.includes('connection') || error.message.includes('authentication')) {
+        ws.close();
+      }
+    };
+
     // Relay: OpenAI Realtime API Event -> Browser Event
     client.realtime.on('server.*', (event) => {
-      this.log(`Relaying "${event.type}" to Client`);
-      ws.send(JSON.stringify(event));
+      try {
+        this.log(`Relaying "${event.type}" to Client`);
+        ws.send(JSON.stringify(event));
+      } catch (e) {
+        console.error('Error sending event to client:', e.message);
+        this.log(`Error sending event to client: ${e.message}`);
+      }
     });
     client.realtime.on('close', () => ws.close());
+    client.realtime.on('error', handleClientError);
+
+    // Wrap the client in a proxy to catch any synchronous errors
+    const clientProxy = new Proxy(client, {
+      get: (target, prop) => {
+        const value = target[prop];
+        if (typeof value === 'function') {
+          return (...args) => {
+            try {
+              const result = value.apply(target, args);
+              if (result instanceof Promise) {
+                return result.catch(handleClientError);
+              }
+              return result;
+            } catch (e) {
+              handleClientError(e);
+              return null;
+            }
+          };
+        }
+        return value;
+      }
+    });
 
     // Relay: Browser Event -> OpenAI Realtime API Event
     // We need to queue data waiting for the OpenAI connection
@@ -48,25 +87,28 @@ export class RealtimeRelay {
       try {
         const event = JSON.parse(data);
         this.log(`Relaying "${event.type}" to OpenAI`);
-        client.realtime.send(event.type, event);
+        clientProxy.realtime.send(event.type, event).catch(e => {
+          console.error('Error sending event to OpenAI:', e.message);
+          this.log(`Error sending event to OpenAI: ${e.message}`);
+        });
       } catch (e) {
         console.error(e.message);
         this.log(`Error parsing event from client: ${data}`);
       }
     };
     ws.on('message', (data) => {
-      if (!client.isConnected()) {
+      if (!clientProxy.isConnected()) {
         messageQueue.push(data);
       } else {
         messageHandler(data);
       }
     });
-    ws.on('close', () => client.disconnect());
+    ws.on('close', () => clientProxy.disconnect());
 
     // Connect to OpenAI Realtime API
     try {
       this.log(`Connecting to OpenAI...`);
-      await client.connect();
+      await clientProxy.connect();
     } catch (e) {
       this.log(`Error connecting to OpenAI: ${e.message}`);
       ws.close();
