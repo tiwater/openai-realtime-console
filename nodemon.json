@@ -1,0 +1,14 @@
+{
+  "watch": ["relay-server/"],
+  "ext": "js,json",
+  "ignore": ["*.test.js"],
+  "delay": "1000",
+  "restartable": "rs",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "events": {
+    "crash": "sh -c 'echo \"Server crashed - restarting...\" && exit 1'"
+  },
+  "crashRestartDelay": 2000
+}
