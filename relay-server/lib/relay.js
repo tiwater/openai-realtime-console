@@ -1,8 +1,10 @@
 import { WebSocketServer } from 'ws';
 import { RealtimeClient } from '@openai/realtime-api-beta';
+import { EventEmitter } from 'events';
 
-export class RealtimeRelay {
+export class RealtimeRelay extends EventEmitter {
   constructor(apiKey) {
+    super();
     this.apiKey = apiKey;
     this.sockets = new WeakMap();
     this.wss = null;
@@ -38,6 +40,7 @@ export class RealtimeRelay {
     const handleClientError = (error) => {
       console.error('OpenAI client error:', error);
       this.log(`OpenAI client error: ${error.message}`);
+      this.emit('error', error);
       if (error.message.includes('connection') || error.message.includes('authentication')) {
         ws.close();
       }
